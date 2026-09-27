@@ -1,0 +1,30 @@
+import { useState } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
+import { Brand, Button, Field, FormError } from '../components/ui.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { errorText } from '../services/api.js';
+
+export function AuthFrame({ children, mode }) {
+  return <main className="auth-page"><section className="auth-side"><Link to="/" className="auth-back"><ArrowLeft size={16} /> Back to QuickFix</Link><div className="auth-side-inner"><span className="auth-decoration">✳</span><span className="eyebrow">LOCAL HELP, A BETTER WAY</span><h1>Make room<br />for <em>life at home.</em></h1><p>We’ll match you with people who care about the work as much as you care about home.</p><div className="auth-side-proof"><span><ShieldCheck size={16} /> Profiles shaped by real jobs</span><span><Check size={16} /> Real-time progress and updates</span></div></div><div className="auth-side-footer"><Brand light /><span>Good work lives close to home.</span></div></section><section className="auth-form-side"><div className="auth-mobile-brand"><Brand /></div><div className="auth-card"><span className="eyebrow">{mode === 'login' ? 'WELCOME BACK' : 'LET’S GET YOU STARTED'}</span>{children}</div><p className="auth-legal">Your account details are used to manage QuickFix marketplace services.</p></section></main>;
+}
+
+export function Login() {
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
+  const [values, setValues] = useState({ email: '', password: '' }), [error, setError] = useState(''), [busy, setBusy] = useState(false), [show, setShow] = useState(false);
+  if (user) return <Navigate to="/dashboard" replace />;
+  const submit = async e => { e.preventDefault(); setBusy(true); setError(''); try { const account = await login(values); navigate('/dashboard', { replace: true, state: { role: account.role } }); } catch (err) { setError(errorText(err)); } finally { setBusy(false); } };
+  return <AuthFrame mode="login"><h2>Good to see you.</h2><p className="auth-description">Sign in to pick up where you left off.</p><form className="auth-form" onSubmit={submit}><FormError>{error}</FormError><Field label="Email address" type="email" value={values.email} onChange={e => setValues({ ...values, email: e.target.value })} placeholder="you@example.com" autoComplete="email" required /><label className="field"><span>Password</span><div className="password-input"><input value={values.password} onChange={e => setValues({ ...values, password: e.target.value })} type={show ? 'text' : 'password'} autoComplete="current-password" required /><button type="button" aria-label={show ? 'Hide password' : 'Show password'} onClick={() => setShow(!show)}>{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label><div className="auth-form-meta"><span>Protected account access <ShieldCheck size={14} /></span></div><Button type="submit" disabled={busy} className="auth-submit">{busy ? 'Signing in…' : 'Sign in'} {!busy && <ArrowRight size={17} />}</Button></form><p className="auth-switch">New to QuickFix? <Link to="/register">Create an account</Link></p></AuthFrame>;
+}
+
+export function Register() {
+  const { user, register } = useAuth();
+  const navigate = useNavigate();
+  const [search] = useSearchParams();
+  const [role, setRole] = useState(search.get('role') === 'PROVIDER' ? 'PROVIDER' : 'CUSTOMER');
+  const [values, setValues] = useState({ name: '', email: '', password: '' }), [error, setError] = useState(''), [busy, setBusy] = useState(false), [show, setShow] = useState(false);
+  if (user) return <Navigate to="/dashboard" replace />;
+  const submit = async e => { e.preventDefault(); setBusy(true); setError(''); try { const account = await register({ ...values, role }); navigate('/dashboard', { replace: true, state: { role: account.role } }); } catch (err) { setError(errorText(err)); } finally { setBusy(false); } };
+  return <AuthFrame mode="register"><h2>Your next good day<br />starts here.</h2><p className="auth-description">Join the neighbourhood network that gets things done.</p><div className="role-picker" role="tablist" aria-label="Account type"><button onClick={() => setRole('CUSTOMER')} className={role === 'CUSTOMER' ? 'role-selected' : ''} role="tab" aria-selected={role === 'CUSTOMER'}><span>⌂</span><b>Book a service</b></button><button onClick={() => setRole('PROVIDER')} className={role === 'PROVIDER' ? 'role-selected' : ''} role="tab" aria-selected={role === 'PROVIDER'}><span>✦</span><b>Join as a pro</b></button></div><form className="auth-form" onSubmit={submit}><FormError>{error}</FormError><Field label="Your name" value={values.name} onChange={e => setValues({ ...values, name: e.target.value })} placeholder="How should we call you?" autoComplete="name" minLength="2" maxLength="80" required /><Field label="Email address" type="email" value={values.email} onChange={e => setValues({ ...values, email: e.target.value })} placeholder="you@example.com" autoComplete="email" required /><label className="field"><span>Create a password</span><div className="password-input"><input value={values.password} onChange={e => setValues({ ...values, password: e.target.value })} type={show ? 'text' : 'password'} autoComplete="new-password" minLength="8" required /><button type="button" aria-label={show ? 'Hide password' : 'Show password'} onClick={() => setShow(!show)}>{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></div><small>At least 8 characters.</small></label><Button type="submit" disabled={busy} className="auth-submit">{busy ? 'Creating account…' : 'Create my account'} {!busy && <ArrowRight size={17} />}</Button></form><p className="auth-switch">Already with QuickFix? <Link to="/login">Sign in</Link></p><div className="auth-secure"><Sparkles size={15} /> {role === 'PROVIDER' ? 'Set up your service profile right after joining.' : 'Free to join, easy to use.'}</div></AuthFrame>;
+}

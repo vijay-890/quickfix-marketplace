@@ -1,0 +1,23 @@
+{
+  "name": "quickfix-marketplace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "seed": "npm run seed -w server",
+    "setup:vapid": "npm run setup:vapid -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "rollup": "npm:@rollup/wasm-node@4.63.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

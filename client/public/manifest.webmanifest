@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "QuickFix — Good help, right on time",
+  "short_name": "QuickFix",
+  "description": "Book trusted local home-service professionals.",
+  "start_url": "/?source=homescreen",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f4f6fb",
+  "theme_color": "#142743",
+  "icons": [
+    {
+      "src": "/quickfix-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
