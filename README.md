@@ -23,16 +23,16 @@ QuickFix connects customers who need help around the home with nearby service pr
 - **Database:** local MongoDB at `127.0.0.1` or `localhost` for development; production can use an accessible MongoDB deployment. The database name remains `quickfix`.
 
 ```text
-client/src/       React app, pages, layouts, context, API client and styles
-server/config/    MongoDB connection
-server/controllers/ API handlers and business workflows
-server/middleware/ authentication, validation, and errors
-server/models/    User, ProviderProfile, ServiceCategory, ServiceRequest,
+frontend/src/       React app, pages, layouts, context, API client and styles
+backend/config/    MongoDB connection
+backend/controllers/ API handlers and business workflows
+backend/middleware/ authentication, validation, and errors
+backend/models/    User, ProviderProfile, ServiceCategory, ServiceRequest,
                   Conversation, Message, Notification, Review
-server/routes/    REST route definitions
-server/services/  notifications, request workflow, realtime event access
-server/sockets/   authenticated Socket.IO event handlers
-server/uploads/   local development image files (ignored by Git)
+backend/routes/    REST route definitions
+backend/services/  notifications, request workflow, realtime event access
+backend/sockets/   authenticated Socket.IO event handlers
+backend/uploads/   local development image files (ignored by Git)
 ```
 
 ## Requirements and install
@@ -68,7 +68,7 @@ npm run dev
 - API and Socket.IO: <http://localhost:5000>
 - Health check: <http://localhost:5000/api/health>
 
-The Vite development server proxies `/api`, `/uploads`, and `/socket.io` to Express. To start only one side, run `npm run dev -w client` or `npm run dev -w server` from the root. For a production client bundle, use `npm run build`; `npm start` starts the API.
+The Vite development server proxies `/api`, `/uploads`, and `/socket.io` to Express. To start only one side, run `npm run dev -w frontend` or `npm run dev -w backend` from the root. For a production client bundle, use `npm run build`; `npm start` starts the API.
 
 At server startup, Mongoose connects using `MONGO_URI` and QuickFix idempotently inserts its built-in service categories. If local MongoDB is unavailable, the server exits with: `MongoDB connection failed. Please start the local MongoDB service.`
 
@@ -98,7 +98,7 @@ Default connection:
 MONGO_URI=mongodb://127.0.0.1:27017/quickfix
 ```
 
-Mongoose uses/creates the `quickfix` database and these collections as records are written: `users`, `providerprofiles`, `servicecategories`, `servicerequests`, `conversations`, `messages`, `notifications`, and `reviews`. MongoDB stores the authoritative records, so browser refreshes do not clear marketplace data. Uploaded image files are local files under `server/uploads/`; MongoDB stores their paths.
+Mongoose uses/creates the `quickfix` database and these collections as records are written: `users`, `providerprofiles`, `servicecategories`, `servicerequests`, `conversations`, `messages`, `notifications`, and `reviews`. MongoDB stores the authoritative records, so browser refreshes do not clear marketplace data. Uploaded image files are local files under `backend/uploads/`; MongoDB stores their paths.
 
 If startup reports that MongoDB is unavailable, start the MongoDB service on Windows (the service is commonly named `MongoDB`) or run `mongod` with its configured data directory, then restart QuickFix. Confirm that port `27017` is listening. QuickFix does not try another database when local MongoDB is unavailable.
 
@@ -160,7 +160,7 @@ Server events include `presence:list` (initial snapshot), `message:received`, `t
 
 ## Deployment notes
 
-The app can be deployed as one Node web service: Express serves both `client/dist` and the `/api` + Socket.IO endpoints. `render.yaml` contains a free Render Blueprint for a public demo. Connect a private GitHub repository to Render, then supply `MONGO_URI` and the web-push environment values in the Render dashboard. Render's assigned URL is used automatically for CORS and Socket.IO; set `CLIENT_URL` explicitly only when using a custom domain or multiple origins. `MONGO_URI` must use the `quickfix` database name. Local development remains restricted to loopback MongoDB; remote MongoDB is accepted only with `NODE_ENV=production`.
+The app can be deployed as one Node web service: Express serves both `frontend/dist` and the `/api` + Socket.IO endpoints. `render.yaml` contains a free Render Blueprint for a public demo. Connect a private GitHub repository to Render, then supply `MONGO_URI` and the web-push environment values in the Render dashboard. Render's assigned URL is used automatically for CORS and Socket.IO; set `CLIENT_URL` explicitly only when using a custom domain or multiple origins. `MONGO_URI` must use the `quickfix` database name. Local development remains restricted to loopback MongoDB; remote MongoDB is accepted only with `NODE_ENV=production`.
 
 For MongoDB Atlas, create a database user and add the Render service's outbound IP ranges from its **Connect → Outbound** panel to Atlas's IP access list. Do not open the database to every IP. Generate local VAPID credentials with `npm run setup:vapid`, then copy their values from the ignored local `.env` into Render's secret environment variables; never commit or share the private key.
 
@@ -173,5 +173,5 @@ Payment capture, refunds, email delivery, and password-reset flows are not inclu
 - **MongoDB connection failed:** start the local MongoDB service and verify port 27017. Check that `MONGO_URI` points to `localhost`/`127.0.0.1` and ends in `/quickfix`.
 - **Client cannot reach the API:** keep the default API port at 5000 and client at 5173, or update `CLIENT_URL` and the Vite proxy together.
 - **Socket events do not arrive:** sign in again to refresh the JWT and confirm the browser origin is listed in `CLIENT_URL`.
-- **Uploads fail:** use a real JPG, PNG, WEBP, or AVIF image smaller than `MAX_UPLOAD_MB` (5 MB by default); keep `server/uploads/` writable.
+- **Uploads fail:** use a real JPG, PNG, WEBP, or AVIF image smaller than `MAX_UPLOAD_MB` (5 MB by default); keep `backend/uploads/` writable.
 - **Admin sign-in fails:** rerun `npm run seed` in development and use the documented demo-only account.

@@ -1,8 +1,8 @@
 node_modules/
 .npm-cache/
-client/dist/
-server/uploads/*
-!server/uploads/.gitkeep
+frontend/dist/
+backend/uploads/*
+!backend/uploads/.gitkeep
 .env
 *.log
 .DS_Store

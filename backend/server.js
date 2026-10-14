@@ -55,7 +55,7 @@ async function start() {
   app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 500, standardHeaders: 'draft-8', legacyHeaders: false }));
   app.use('/api', routes);
   if (process.env.NODE_ENV === 'production') {
-    const clientDist = path.join(projectRoot, 'client', 'dist');
+    const clientDist = path.join(projectRoot, 'frontend', 'dist');
     app.use(express.static(clientDist, { maxAge: '1d', index: false }));
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) return next();
