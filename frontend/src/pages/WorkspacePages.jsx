@@ -7,6 +7,7 @@ import { Avatar, Button, EmptyState, ErrorState, Field, FormError, PageControls,
 import PwaInstallButton from '../components/PwaInstallButton.jsx';
 
 const asset = path => path?.startsWith('http') ? path : path ? `${import.meta.env.VITE_API_URL || ''}${path}` : '';
+const currency = value => `₹${Number(value || 0).toLocaleString('en-IN')}`;
 
 export function ProviderDirectory() {
   const [search] = useSearchParams();
@@ -131,11 +132,27 @@ export function ReviewsPage() {
 }
 
 export function EarningsPage() {
-  const { data, loading, error, refresh } = useLoad(async () => dataOf(await api.get('/requests?scope=assigned')), 'earnings');
+  const [page, setPage] = useState(1);
+  const { data, loading, error, refresh } = useLoad(
+    async () => dataOf(await api.get('/requests', { params: { scope: 'assigned', status: 'COMPLETED', page } })),
+    `earnings:${page}`
+  );
   const { data: profile, loading: profileLoading } = useLoad(async () => dataOf(await api.get('/providers/me')));
   if (loading || profileLoading) return <PageLoader label="Loading your work history" />;
   if (error) return <ErrorState message={error} onRetry={refresh} />;
-  const jobs = (data?.items || []).filter(x => x.status === 'COMPLETED');
-  const total = jobs.reduce((sum, job) => sum + Number(job.budget || 0), 0);
-  return <div className="earnings-page"><SectionTitle eyebrow="YOUR WORK HISTORY" title="Good work adds up." copy="A clear record of the jobs you’ve completed on QuickFix." /><div className="earnings-summary"><span className="earnings-summary-icon"><CircleDollarSign size={22} /></span><div><small>COMPLETED REQUEST BUDGETS</small><b>{currency(total)}</b><span>Across {jobs.length} completed {jobs.length === 1 ? 'job' : 'jobs'} · budgets are not payouts</span></div><div className="earnings-summary-side"><span><Check size={16} /> Completed work</span><span>Profile rate <b>{currency(profile?.hourlyRate)}/hr</b></span></div></div><div className="surface history-panel"><div className="panel-heading"><div><span className="eyebrow">COMPLETED JOBS</span><h2>Your work history</h2></div><span className="results-count">{jobs.length} jobs</span></div>{jobs.length ? <div className="request-list">{jobs.map(row => <article className="history-job-row" key={row._id}><Link to={`/requests/${row._id}`} className="history-job-info"><span className="request-card-icon">{row.category?.icon || '🔧'}</span><span><b>{row.title}</b><small>{row.category?.name} · Completed {new Date(row.updatedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</small></span></Link><Price value={row.budget} /></article>)}</div> : <EmptyState title="Your first completed job is ahead" copy="Accepted and finished work will show up here." action="See incoming requests" to="/requests" />}</div></div>;
+  const jobs = data?.items || [];
+  const total = Number(data?.summary?.completedBudget ?? jobs.reduce((sum, job) => sum + Number(job.budget || 0), 0));
+  const jobCount = data?.pagination?.total ?? jobs.length;
+  return <div className="earnings-page">
+    <SectionTitle eyebrow="YOUR WORK HISTORY" title="Good work adds up." copy="A clear record of the jobs you’ve completed on QuickFix." />
+    <div className="earnings-summary">
+      <span className="earnings-summary-icon"><CircleDollarSign size={22} /></span>
+      <div><small>COMPLETED REQUEST BUDGETS</small><b>{currency(total)}</b><span>Across {jobCount} completed {jobCount === 1 ? 'job' : 'jobs'} · budgets are not payouts</span></div>
+      <div className="earnings-summary-side"><span><Check size={16} /> Completed work</span><span>Profile rate <b>{currency(profile?.hourlyRate)}/hr</b></span></div>
+    </div>
+    <div className="surface history-panel">
+      <div className="panel-heading"><div><span className="eyebrow">COMPLETED JOBS</span><h2>Your work history</h2></div><span className="results-count">{jobCount} jobs</span></div>
+      {jobs.length ? <><div className="request-list">{jobs.map(row => <article className="history-job-row" key={row._id}><Link to={`/requests/${row._id}`} className="history-job-info"><span className="request-card-icon">{row.category?.icon || '🔧'}</span><span><b>{row.title}</b><small>{row.category?.name} · Completed {new Date(row.updatedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</small></span></Link><Price value={row.budget} /></article>)}</div><PageControls pagination={data?.pagination} onChange={setPage} /></> : <EmptyState title="Your first completed job is ahead" copy="Accepted and finished work will show up here." action="See incoming requests" to="/requests" />}
+    </div>
+  </div>;
 }

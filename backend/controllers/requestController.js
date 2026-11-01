@@ -46,13 +46,21 @@ export const list = asyncHandler(async (req, res) => {
   if (req.user.role === 'CUSTOMER' && req.query.status) filter.status = req.query.status;
   if (req.user.role === 'PROVIDER' && (req.query.scope || 'incoming') !== 'incoming' && req.query.status) filter.status = req.query.status;
   if (req.query.category && req.user.role !== 'ADMIN') filter.category = req.query.category;
-  const [items, total] = await Promise.all([
-    populated(ServiceRequest.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)).lean(), ServiceRequest.countDocuments(filter)
+  const [items, total, completedBudgets] = await Promise.all([
+    populated(ServiceRequest.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)).lean(),
+    ServiceRequest.countDocuments(filter),
+    req.user.role === 'PROVIDER' && req.query.scope === 'assigned'
+      ? ServiceRequest.aggregate([{ $match: { provider: req.user._id, status: 'COMPLETED' } }, { $group: { _id: null, total: { $sum: '$budget' } } }])
+      : Promise.resolve(null)
   ]);
   if (req.user.role === 'PROVIDER' && filter.status === 'OPEN') {
     for (const item of items) { item.address = 'Shared after you accept'; item.mapLocation = null; if (item.customer) delete item.customer.phone; }
   }
-  ok(res, { items, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+  ok(res, {
+    items,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    ...(completedBudgets ? { summary: { completedBudget: Number(completedBudgets[0]?.total || 0) } } : {})
+  });
 });
 
 export const detail = asyncHandler(async (req, res) => {
