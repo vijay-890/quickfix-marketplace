@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
-import api, { dataOf, errorText } from '../services/api.js';
+import api, { API_ORIGIN, errorText } from '../services/api.js';
 
 const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
   }, [token]);
   useEffect(() => {
     if (!token || !user) { socket?.disconnect(); setSocket(null); setUnread(0); setOnlineUsers({}); return; }
-    const client = io(window.location.origin, { auth: { token }, transports: ['websocket', 'polling'], reconnection: true });
+    const client = io(API_ORIGIN || window.location.origin, { auth: { token }, transports: ['websocket', 'polling'], reconnection: true });
     client.on('notification:count', payload => setUnread(payload.count));
     client.on('presence:list', payload => setOnlineUsers(Object.fromEntries((payload.userIds || []).map(id => [String(id), true]))));
     client.on('user:presence', payload => setOnlineUsers(current => ({ ...current, [String(payload.userId)]: payload.online })));

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, BadgeCheck, Bell, Check, ChevronDown, ChevronRight, CircleDollarSign, Clock3, ImagePlus, MapPin, MessageCircle, Send, ShieldCheck, Star, UsersRound, Wrench } from 'lucide-react';
-import api, { dataOf, errorText } from '../services/api.js';
+import api, { assetUrl, dataOf, errorText } from '../services/api.js';
 import { useAuth, useLoad } from '../context/AuthContext.jsx';
 import { Avatar, Button, EmptyState, ErrorState, Field, FormError, PageControls, PageLoader, Price, SectionTitle, Stars } from '../components/ui.jsx';
 import PwaInstallButton from '../components/PwaInstallButton.jsx';
 
-const asset = path => path?.startsWith('http') ? path : path ? `${import.meta.env.VITE_API_URL || ''}${path}` : '';
+const asset = assetUrl;
 const currency = value => `₹${Number(value || 0).toLocaleString('en-IN')}`;
 
 export function ProviderDirectory() {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { assetUrl } from '../services/api.js';
 import { AlertCircle, ArrowUpRight, LoaderCircle, Star } from 'lucide-react';
 import { Children, cloneElement, isValidElement } from 'react';
 import { useLanguage } from '../context/LanguageContext.jsx';
@@ -25,7 +26,7 @@ export function Field({ label, hint, error, className = '', ...props }) {
   const localizedOptions = Children.map(children, child => typeof child === 'string' ? t(child) : child);
   return <label className={`field ${className}`}><span>{t(label)}</span>{as === 'textarea' ? <textarea {...localizedProps} /> : as === 'select' ? <select {...localizedProps}>{localizedOptions}</select> : <input {...localizedProps} />}{hint && <small>{t(hint)}</small>}{error && <small className="field-error">{t(error)}</small>}</label>;
 }
-export function Avatar({ name = 'QuickFix', src, size = 'md' }) { return <span className={`avatar avatar-${size}`}>{src ? <img src={src} alt="" /> : (name.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase() || 'Q')}</span>; }
+export function Avatar({ name = 'QuickFix', src, size = 'md' }) { return <span className={`avatar avatar-${size}`}>{src ? <img src={assetUrl(src)} alt="" /> : (name.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase() || 'Q')}</span>; }
 export function StatusPill({ status }) { const { t } = useLanguage(); const tone = ['COMPLETED', 'ONLINE'].includes(status) ? 'green' : ['CANCELLED', 'OFFLINE'].includes(status) ? 'muted' : ['STARTED', 'PROVIDER_ON_THE_WAY', 'BUSY'].includes(status) ? 'amber' : 'blue'; return <span className={`status-pill tone-${tone}`}><i />{t(String(status || '').replaceAll('_', ' ').toLowerCase())}</span>; }
 export function Stars({ value = 0, count }) { return <span className="stars"><Star size={14} fill="currentColor" /> {Number(value).toFixed(1)}{count !== undefined && <span className="stars-count">({count})</span>}</span>; }
 export function Price({ value }) { return <span className="price">₹{Number(value || 0).toLocaleString('en-IN')}</span>; }

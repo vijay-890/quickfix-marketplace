@@ -1,14 +1,43 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout.jsx';
 import AppShell from './layouts/AppShell.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 import { PageLoader } from './components/ui.jsx';
-import { About, CategoryPage, Contact, Home, NotFound, ProviderPublicProfile, Services } from './pages/PublicPages.jsx';
-import { Login, Register } from './pages/AuthPages.jsx';
-import Dashboard from './pages/DashboardPages.jsx';
-import { RequestCreate, RequestDetail, RequestsList } from './pages/RequestPages.jsx';
-import { AdminActivity, AdminCategories, AdminProviders, AdminRequests, AdminReviews, AdminUsers } from './pages/AdminPages.jsx';
-import { EarningsPage, InboxPage, NotificationsPage, ProfilePage, ProviderDirectory, ReviewsPage } from './pages/WorkspacePages.jsx';
+
+// Split route groups so the first screen downloads only the page it needs.
+const fromPublic = name => lazy(() => import('./pages/PublicPages.jsx').then(pages => ({ default: pages[name] })));
+const fromAuth = name => lazy(() => import('./pages/AuthPages.jsx').then(pages => ({ default: pages[name] })));
+const fromDashboard = name => lazy(() => import('./pages/DashboardPages.jsx').then(pages => ({ default: pages[name] })));
+const fromRequests = name => lazy(() => import('./pages/RequestPages.jsx').then(pages => ({ default: pages[name] })));
+const fromAdmin = name => lazy(() => import('./pages/AdminPages.jsx').then(pages => ({ default: pages[name] })));
+const fromWorkspace = name => lazy(() => import('./pages/WorkspacePages.jsx').then(pages => ({ default: pages[name] })));
+
+const About = fromPublic('About');
+const CategoryPage = fromPublic('CategoryPage');
+const Contact = fromPublic('Contact');
+const Home = fromPublic('Home');
+const NotFound = fromPublic('NotFound');
+const ProviderPublicProfile = fromPublic('ProviderPublicProfile');
+const Services = fromPublic('Services');
+const Login = fromAuth('Login');
+const Register = fromAuth('Register');
+const Dashboard = fromDashboard('default');
+const RequestCreate = fromRequests('RequestCreate');
+const RequestDetail = fromRequests('RequestDetail');
+const RequestsList = fromRequests('RequestsList');
+const AdminActivity = fromAdmin('AdminActivity');
+const AdminCategories = fromAdmin('AdminCategories');
+const AdminProviders = fromAdmin('AdminProviders');
+const AdminRequests = fromAdmin('AdminRequests');
+const AdminReviews = fromAdmin('AdminReviews');
+const AdminUsers = fromAdmin('AdminUsers');
+const EarningsPage = fromWorkspace('EarningsPage');
+const InboxPage = fromWorkspace('InboxPage');
+const NotificationsPage = fromWorkspace('NotificationsPage');
+const ProfilePage = fromWorkspace('ProfilePage');
+const ProviderDirectory = fromWorkspace('ProviderDirectory');
+const ReviewsPage = fromWorkspace('ReviewsPage');
 
 function Protected({ roles }) {
   const { user, ready } = useAuth(), location = useLocation();
@@ -20,7 +49,7 @@ function Protected({ roles }) {
 function Public({ children }) { return <PublicLayout>{children}</PublicLayout>; }
 
 export default function App() {
-  return <Routes>
+  return <Suspense fallback={<PageLoader label="Loading page" />}><Routes>
     <Route path="/" element={<Public><Home /></Public>} />
     <Route path="/services" element={<Public><Services /></Public>} />
     <Route path="/services/:slug" element={<Public><CategoryPage /></Public>} />
@@ -40,5 +69,5 @@ export default function App() {
       <Route element={<Protected roles={['ADMIN']} />}><Route path="/admin/users" element={<AdminUsers />} /><Route path="/admin/providers" element={<AdminProviders />} /><Route path="/admin/requests" element={<AdminRequests />} /><Route path="/admin/categories" element={<AdminCategories />} /><Route path="/admin/reviews" element={<AdminReviews />} /><Route path="/admin/activity" element={<AdminActivity />} /></Route>
     </Route></Route>
     <Route path="*" element={<Public><NotFound /></Public>} />
-  </Routes>;
+  </Routes></Suspense>;
 }
