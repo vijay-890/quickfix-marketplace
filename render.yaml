@@ -23,8 +23,13 @@ services:
         sync: false
       - key: WEB_PUSH_SUBJECT
         sync: false
+      - key: API_PUBLIC_URL
+        fromService:
+          name: quickfix-marketplace
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
       - key: CLIENT_URL
-        sync: false
+        value: https://quickfix-marketplace-web.onrender.com
 
   - type: web
     name: quickfix-marketplace-web
@@ -33,7 +38,10 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        sync: false
+        fromService:
+          name: quickfix-marketplace
+          type: web
+          envVarKey: API_PUBLIC_URL
     routes:
       - type: rewrite
         source: /*

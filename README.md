@@ -160,7 +160,7 @@ Server events include `presence:list` (initial snapshot), `message:received`, `t
 
 ## Deployment notes
 
-For local development, Express can serve both `frontend/dist` and the `/api` + Socket.IO endpoints. The Render Blueprint separates the React frontend into a static site and keeps the API on the existing Node web service. Connect the repository to Render, then supply `MONGO_URI` and the web-push environment values in the Render dashboard. Set `VITE_API_URL` on the static site to the API service URL, and set `CLIENT_URL` on the API service to the static site URL. `MONGO_URI` must use the `quickfix` database name. Local development remains restricted to loopback MongoDB; remote MongoDB is accepted only with `NODE_ENV=production`.
+For local development, Express can serve both `frontend/dist` and the `/api` + Socket.IO endpoints. The Render Blueprint separates the React frontend into a static site and keeps the API on the existing Node web service. Connect the repository to Render, then supply `MONGO_URI` and the web-push environment values in the Render dashboard. The Blueprint wires the API public URL into the static build and configures the static origin for API CORS automatically. `MONGO_URI` must use the `quickfix` database name. Local development remains restricted to loopback MongoDB; remote MongoDB is accepted only with `NODE_ENV=production`.
 
 For MongoDB Atlas, create a database user and add the Render service's outbound IP ranges from its **Connect → Outbound** panel to Atlas's IP access list. Do not open the database to every IP. Generate local VAPID credentials with `npm run setup:vapid`, then copy their values from the ignored local `.env` into Render's secret environment variables; never commit or share the private key.
 
@@ -180,10 +180,8 @@ Payment capture, refunds, email delivery, and password-reset flows are not inclu
 
 The free Render web service sleeps after 15 minutes without traffic. To show the app immediately, the Render blueprint also defines `quickfix-marketplace-web` as a static site on Render's CDN. The existing `quickfix-marketplace` web service continues to host the API and Socket.IO; its free-tier API can still take about a minute to wake after inactivity.
 
-After syncing the blueprint, set these values in the Render dashboard:
+The Blueprint automatically wires the API URL into the static-site build and sets the matching API CORS origin.
 
-- On `quickfix-marketplace-web`, set `VITE_API_URL` to the public URL of the existing API web service (for example, `https://quickfix-marketplace.onrender.com`, without `/api`). The static site uses this value at build time.
-- On `quickfix-marketplace`, set `CLIENT_URL` to the public URL of the new static site. This lets the API accept browser requests from the CDN-hosted app.
 - Open the static site's URL for the app and reinstall the PWA from that address if you use the desktop app icon. The existing API URL remains available for API traffic.
 
 The blueprint adds the React Router fallback so direct links such as `/earnings` load from the static site. WebSockets and uploaded image URLs connect to the configured API origin. Page bundles load on demand to reduce the first screen download.
