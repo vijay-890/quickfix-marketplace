@@ -181,6 +181,7 @@ Payment capture, refunds, email delivery, and password-reset flows are not inclu
 The free Render web service sleeps after 15 minutes without traffic. To show the app immediately, the Render blueprint also defines `quickfix-marketplace-web` as a static site on Render's CDN. The existing `quickfix-marketplace` web service continues to host the API and Socket.IO; its free-tier API can still take about a minute to wake after inactivity.
 
 The Blueprint automatically wires the API URL into the static-site build and sets the matching API CORS origin.
+If the existing Render Blueprint has Auto Sync disabled, run **Manual Sync** in the Render Dashboard after this GitHub update. If the services were created outside the Blueprint, set `VITE_API_URL` on the static site to the API service's public URL (without `/api`) and set `CLIENT_URL` on the API service to `https://quickfix-marketplace-web.onrender.com`, then redeploy; `VITE_API_URL` is applied at build time.
 
 - Open the static site's URL for the app and reinstall the PWA from that address if you use the desktop app icon. The existing API URL remains available for API traffic.
 
