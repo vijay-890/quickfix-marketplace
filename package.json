@@ -11,10 +11,13 @@
     "build": "npm run build -w frontend",
     "start": "npm run start -w backend",
     "seed": "npm run seed -w backend",
-    "setup:vapid": "npm run setup:vapid -w backend"
+    "setup:vapid": "npm run setup:vapid -w backend",
+    "format": "prettier --write \"backend/**/*.{js,mjs}\" \"frontend/src/**/*.{js,jsx,css}\" \"frontend/vite.config.js\" \"render.yaml\"",
+    "format:check": "prettier --check \"backend/**/*.{js,mjs}\" \"frontend/src/**/*.{js,jsx,css}\" \"frontend/vite.config.js\" \"render.yaml\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "prettier": "3.9.10",
     "rollup": "npm:@rollup/wasm-node@4.63.5"
   },
   "engines": {

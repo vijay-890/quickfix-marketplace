@@ -1,3 +1,5 @@
+# Tanglish: Render backend service and static frontend deploy settings.
+
 services:
   - type: web
     name: quickfix-marketplace
@@ -12,7 +14,7 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: MAX_UPLOAD_MB
-        value: "5"
+        value: '5'
       - key: JWT_SECRET
         generateValue: true
       - key: MONGO_URI

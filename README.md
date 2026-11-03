@@ -1,5 +1,7 @@
 # QuickFix — Real-time service marketplace
 
+See [PROJECT_GUIDE.md](PROJECT_GUIDE.md) for the folder map and common run/format commands.
+
 QuickFix connects customers who need help around the home with nearby service professionals. The app includes customer, provider, and administrator workspaces; a persisted service lifecycle; private job chat; and live notifications powered by Socket.IO.
 
 ## Features

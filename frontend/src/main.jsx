@@ -1,3 +1,5 @@
+// Tanglish: React app entry; router, auth, language, and shared providers inga connect aagum.
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -15,6 +17,12 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter><LanguageProvider><AuthProvider><App /></AuthProvider></LanguageProvider></BrowserRouter>
-  </React.StrictMode>
+    <BrowserRouter>
+      <LanguageProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </LanguageProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
 );

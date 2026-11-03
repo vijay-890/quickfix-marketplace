@@ -1,3 +1,5 @@
+// Tanglish: Push notification receive pannitu notification click-ah app page-kku route pannum.
+
 const safePath = value => typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : '/notifications';
 
 self.addEventListener('install', event => {
